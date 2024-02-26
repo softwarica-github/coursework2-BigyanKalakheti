@@ -1,4 +1,5 @@
 from PIL import Image
+from file_handler import fileHandler
 from tkinter import messagebox
 from utils import compatible_path
 
@@ -37,6 +38,17 @@ class ImgStg():
         return (''.join(format(ord(x), '016b') for x in val))
 
 
+    def save_img(self,path,name=None):
+        if name==None:
+            name = fileHandler.get_name_dir("embeded_img","png", path=path)
+
+        self.embed_img.save(compatible_path(path + "\\" + name))
+    
+    def save_txt(self,path,name=None):
+        if name==None:
+            name = fileHandler.get_name_dir("extracted_text","txt",path=path)
+        
+        fileHandler.write(self.extracted_text, path = compatible_path(path + "\\" + name))
 
     def resize_img(img, size):
         return img.resize(size)
