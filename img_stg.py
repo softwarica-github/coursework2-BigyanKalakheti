@@ -37,6 +37,7 @@ class ImgStg():
         return (''.join(format(ord(x), '016b') for x in val))
 
 
+
     def resize_img(img, size):
         return img.resize(size)
 
