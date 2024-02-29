@@ -113,7 +113,39 @@ def select_dest_cmd():
     change_log()
 
 # Function to embed data
+def embed_cmd():
+    """
+    this function starts the embedding process.
+    """
+    if get_error("embed") == 0 and AUDIO_PATH and msg:
+            if not select_audio_cmd(AUDIO_PATH):
+                threading.Thread(target=em_audio, args=(AUDIO_PATH,msg,DEST_PATH+"/steg.wav")).start()
 
+    elif get_error("embed") == 0 and IMAGE_PATH and TEXT_PATH :
+        print(f"text: {TEXT_PATH}, image: {IMAGE_PATH}, dest: {DEST_PATH}")
+        text = fileHandler.read(TEXT_PATH)
+        print(text,IMAGE_PATH)
+        threading.Thread(target=STG._merge_txt, args=(IMAGE_PATH,TEXT_PATH,DEST_PATH)).start()
+# Function to extract data
+def extract_cmd():
+    """
+    this function starts the extraction process.
+    """
+    if get_error("extract") == 0 and AUDIO_PATH:
+            result_queue = Queue()
+            def ex_msg_wrapper(audio_path):
+                result = ex_msg(audio_path)
+                result_queue.put(result)
+            # Start the thread
+            thread = threading.Thread(target=ex_msg_wrapper, args=(AUDIO_PATH,))
+            thread.start()
+
+            thread.join()
+
+            # Retrieve the result from the Queue
+            result = result_queue.get()
+    elif get_error("extract") == 0:
+        threading.Thread(target=STG._unmerge_txt, args=(IMAGE_PATH, DEST_PATH)).start()
 
 def help():
         print("\033[92mSteganography CLI TOOL\033[0m")
