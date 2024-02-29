@@ -20,7 +20,7 @@ pip install pillow
 ### Usage
 Run the GUI application using the provided steg_gui.py file:
 ```bash
-python steg_gui.py
+python main.py
 ```
 The GUI provides options to select text files, image files, audio files, and destination folders. Additionally, you can enter a message for embedding.
 
