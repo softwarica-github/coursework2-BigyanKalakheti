@@ -1,13 +1,174 @@
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
-from PIL import Image, ImageT
+from PIL import Image, ImageTk
+import threading
+import os
 
 from img_stg import ImgStg
 from file_handler import fileHandler
 from utils import compatible_path
 from queue import Queue
 
+#ALL PATHS
+DIR_PATH = compatible_path(os.path.dirname(os.path.realpath(__file__)))
+TEXT_PATH = ""
+IMAGE_PATH = ""
+AUDIO_PATH = ""
+DEST_PATH = DIR_PATH
+ERROR = ""
+STG = ImgStg()
+
+RESOURCES = f"{DIR_PATH}\\resources\\"
+
+LOGS = {
+    "img_path":0,
+    "txt_path":0,
+    "dest_path":0,
+    "audio_path":0,
+    "msg":0
+}
+
+
+def change_log(reset=False):
+    text_log = ""
+    T.config(state=NORMAL)
+    T.delete('1.0', END)
+
+    if reset == False:
+        # TEXT PATH
+        if LOGS["txt_path"] == 0:
+            text_log += "(?)-TEXT FILE IS NOT SELECTED!(not required for data extraction)\n\n"
+        else:
+            text_log += "(OK)-TEXT FILE IS SELECTED.\n\n"
+        # IMAGE PATH
+        if LOGS["img_path"] == 0:
+            text_log += "(?)-IMAGE FILE IS NOT SELECTED!\n\n"
+        else:
+            text_log += "(OK)-IMAGE FILE IS SELECTED.\n\n"
+        # AUDIO PATH
+        if LOGS["audio_path"] == 0:
+            text_log += "(?)-AUDIO FILE IS NOT SELECTED!(required only for audio steganography)\n\n"
+        else:
+            text_log += "(OK)-AUDIO FILE IS SELECTED.\n\n"
+        # DESTINATION PATH
+        if LOGS["dest_path"] == 0:
+            text_log += "(?)-DEST FOLDER IS NOT SELECTED!\n\n"
+        else:
+            text_log += "(OK)-DEST FOLDER IS SELECTED.\n\n"
+        if LOGS["msg"] == 0:
+            text_log += "(?)-MSG IS NOT WRITTEN!(required for audio steg)\n\n"
+        else:
+            text_log += "(OK)-MSG IS WRITTENED.\n\n"
+    
+    T.insert(END,text_log)
+    T.config(state=DISABLED)
+    
+
+
+    
+
+def get_error(mode="embed"):
+    """
+    This function checks if the required paths are selected.
+    and returns 0 if there is no error.
+    """
+    global ERROR   
+    if mode == "embed": # if embed is selected
+        if AUDIO_PATH:
+            return 0
+        if TEXT_PATH == "":
+            messagebox.showinfo("INFO", "TEXT PATH IS NOT SELECTED !")
+            return 1
+    elif mode == "extract": # if embed is selected
+        if AUDIO_PATH:
+            return 0
+    if IMAGE_PATH =="":
+        messagebox.showinfo("INFO", "IMAGE PATH IS NOT SELECTED !")
+        return 1
+    
+    return 0
+    
+
+
+
+def select_text_btn():
+    """
+    this function selects the text file and checks if it is a txt file.
+    """
+    global TEXT_PATH
+    TEXT_PATH = filedialog.askopenfilename()
+    if "txt" != TEXT_PATH[len(TEXT_PATH)-3:]:
+        TEXT_PATH = ""
+    else:
+        LOGS["txt_path"] = 1
+    
+    change_log()
+
+
+def select_img_btn():
+    """
+    this function selects the image file and checks if it is a image file.
+    """
+    global IMAGE_PATH, IMAGE
+    IMAGE_PATH = filedialog.askopenfilename()
+    IMAGE = ImageTk.PhotoImage(Image.open(compatible_path(IMAGE_PATH)).resize((295,279)))
+    label1.configure(image=IMAGE)
+    label1.image=IMAGE
+    LOGS["img_path"] = 1
+    change_log()
+
+def select_audio_btn():
+    """
+    This function selects the audio file and checks if it is a valid audio file.
+    """
+    global AUDIO_PATH,msg
+    AUDIO_PATH = filedialog.askopenfilename()
+    # Check if the selected file is a valid audio file
+    if not AUDIO_PATH.lower().endswith(('.mp3', '.wav', '.ogg', '.flac')):
+        messagebox.showinfo("INFO", "Selected file is not a valid audio file.")
+        AUDIO_PATH = ""  # Reset the audio file path
+    else:
+        LOGS["audio_path"] = 1
+
+    change_log()
+
+
+def select_dest_btn():
+    """
+    this function selects the destination folder.
+    """
+    global DEST_PATH
+    DEST_PATH = filedialog.askdirectory()
+    LOGS["dest_path"] = 1
+    change_log()
+
+
+
+
+def reset_btn():
+    """
+    this function resets the settings.
+    """
+    global TEXT_PATH, IMAGE_PATH, DEST_PATH,AUDIO_PATH
+    if messagebox.askquestion("Reset Settings", "Are you sure ?\nSelected paths will be deleted !") == "yes":
+        TEXT_PATH = ""
+        IMAGE_PATH = ""
+        DEST_PATH = DIR_PATH
+        AUDIO_PATH = ""
+
+        LOGS["txt_path"] = 0
+        LOGS["img_path"] = 0
+        LOGS["dest_path"] = 0
+        LOGS["audio_path"] = 0
+        LOGS["msg"] = 0
+
+        T.delete('1.0', END)
+
+        label1.configure(image="")
+        label1.image=""
+
+        change_log(reset=True)
 
 
 # GUI - TKINTER
@@ -160,6 +321,22 @@ msg10 = Label(text="RESET",font=("Arial", 14))
 msg10.place(x=590, y=300, width=100, height=40)
 
 
+# Replace msg1_entry with a Text widget
+# msg1_text = Text(window, height=3, width=40, font=("Arial", 12))
+# msg1_text.place(x=21, y=450, width=300, height=60)
+
+# Optional: set a character limit
+# max_chars = 500
+# msg1_text.insert(END, f"0/{max_chars} characters")
+
+# Add a scrollbar
+# scrollbar = Scrollbar(window, command=msg1_text.yview)
+# scrollbar.place(x=323, y=450, height=60)
+# msg1_text.config(yscrollcommand=scrollbar.set)
+
+# compatible_path function is used to make the path compatible with the os !
+
+# IMAGE = Image.open(compatible_path(RESOURCES) + "no_image.png")
 IMAGE = ImageTk.PhotoImage(Image.open(compatible_path(RESOURCES) + "no_image.png").resize((295,279)))
 
 p1 = PhotoImage(file = compatible_path(RESOURCES + "ico_menu.png"))
