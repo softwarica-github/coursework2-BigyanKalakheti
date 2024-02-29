@@ -79,6 +79,40 @@ def get_error(mode="embed"):
     return 0
 
 
+# Function to select text file
+def select_text_cmd():
+    if "txt" != TEXT_PATH[len(TEXT_PATH)-3:]:
+        TEXT_PATH = ""
+        return False
+    else:
+        LOGS["txt_path"] = 1
+    change_log()
+
+# Function to select image file
+def select_img_cmd():
+    if "jpg" != IMAGE_PATH[len(IMAGE_PATH)-3:]:
+        IMAGE_PATH = ""
+        return False
+    else:
+        LOGS["img_path"] = 1
+    change_log()
+
+# Function to select audio file
+def select_audio_cmd(AUDIO_PATH):
+    if ("wav" != AUDIO_PATH[len(AUDIO_PATH)-3:]) or ("mp3" != AUDIO_PATH[len(AUDIO_PATH)-3:]) :
+        print("Selected file is not a valid audio file.")
+        AUDIO_PATH = ""  # Reset the audio file path
+        return False
+    else:
+        LOGS["audio_path"] = 1
+    change_log()
+
+# Function to select destination folder
+def select_dest_cmd():
+    LOGS["dest_path"] = 1
+    change_log()
+
+# Function to embed data
 
 
 def help():
